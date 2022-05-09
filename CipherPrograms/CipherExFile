@@ -1,0 +1,162 @@
+//package com.cody.main;
+import java.io.*;
+import java.util.Scanner;
+
+public class CipherEx {
+    public static final int NUM_LETTERS = 26;
+    public static final int ENCODE = 1;
+    public static final int DECODE = 2;
+
+    public static void main(String[] args) {
+            //extract arg input into variables
+            try {
+                if (args.length != 3) {
+                    System.out.println("Usage: Cipher inputFileName cipherKey (1) encode (2)decode");
+                    System.exit(0);
+                }
+                String cipherkey = args[1];
+
+                String inputFilename = new String(args[0]);
+
+                int action = Integer.parseInt(args[2]);
+                if (action < 1 || action > 3) {
+                    throw new Exception("Option"+args[2]+" is not valid");
+                }
+
+                    String outputFileName = getOutputFileName(inputFilename, action);
+                    //read in data and output to file
+                    //convert letters to lowercase for output
+                    Scanner input = openInput(inputFilename);
+                    PrintWriter output = openOutput(outputFileName);
+                    if (action == ENCODE) {
+                        while (input.hasNextLine()) {
+                            //String cipherKeylow = cipherkey.toLowerCase();
+                            String encryption = encode(input.nextLine(), cipherkey);
+                            String lower = encryption.toLowerCase();
+                            output.print(lower + " ");
+                        }
+                    } else if (action == DECODE) {
+                        while (input.hasNextLine()) {
+                            //String cipherKeyLow = cipherkey.toLowerCase();
+                            String decryption = decode(input.nextLine(), cipherkey);
+                            String lower = decryption.toLowerCase();
+                            output.print(lower + " ");
+                        }
+                    }
+
+                }
+                //catch(IOException ioe){
+                //     System.out.println("Error opening file" + args[0]);
+                // }
+            catch(Exception e)
+                {
+                    System.out.println(e.getMessage());
+                }
+
+
+            //catch(Throwable t)
+            //{
+
+            //}
+    }
+
+    public static Scanner openInput(String filen) {
+        Scanner in = null;
+        try {
+            File f = new File(filen);
+            in = new Scanner(f);
+            return in;
+        } catch (FileNotFoundException f) {
+            System.out.println("Error opening file" + filen);
+            System.exit(0);
+        }
+        return in;
+    }
+
+    public static PrintWriter openOutput(String out){
+        PrintWriter pw = null;
+        try {
+             pw = new PrintWriter(out);
+            return pw;
+        }
+        catch(FileNotFoundException f){
+            System.out.println("Error opening file" + out);
+            System.exit(0);
+        }
+
+        return pw;
+    }
+
+    public static String getOutputFileName(String file, int action) {
+        String outputfile="";
+        if (action == ENCODE) {
+            outputfile = file;
+
+
+        } else if (action == DECODE) {
+
+            outputfile = file + ".decoded";
+        }
+        return outputfile;
+    }
+
+
+    public static String encode(String message, String key) {
+        String encoded = "";
+        int keyPosition = 0;
+        for (int i = 0; i < message.length(); i++) {
+            if (keyPosition == key.length())
+                keyPosition = 0;
+
+            char m = message.charAt(i);
+            char keyLetter = key.charAt(keyPosition);
+            //String keyLetter = key.substring(keyPosition,keyPosition+1);
+            String alphabet = "abcdefghijklmnopqrstuvwxyz";
+            int keyVal = alphabet.indexOf(keyLetter);
+            char shiftedChar = shiftUpByK(m,keyVal);
+            String shiftedLetter = String.valueOf(shiftedChar);
+            encoded += shiftedLetter;
+
+            keyPosition++;
+        }
+        return encoded;
+    }
+
+
+    public static String decode(String encoded, String key) {
+        String decoded = "";
+        int keyPosition = 0;
+        for (int i = 0; i < encoded.length(); i++) {
+            if (keyPosition == key.length())
+                keyPosition = 0;
+
+            char m = encoded.charAt(i);
+            char keyLetter = key.charAt(keyPosition);
+            String alphabet = "abcdefghijklmnopqrstuvwxyz";
+            int keyVal = alphabet.indexOf(keyLetter);
+            char shiftedChar = shiftUpByK(m,26-keyVal);
+            String shiftedLetter = String.valueOf(shiftedChar);
+            decoded += shiftedLetter;
+
+            keyPosition++;
+        }
+        return decoded;
+    }
+
+    public static char shiftUpByK(char c, int offset) {
+        if ('a' <= c && c <= 'z')
+            return (char) ('a' + (c - 'a' + offset) % NUM_LETTERS);
+        else if ('A' <= c && c <= 'Z')
+            return (char) ('A' + (c - 'A' + offset) % NUM_LETTERS);
+        return c;
+    }
+
+
+    public String getInfo()
+    { return
+            "Program 3, Cody Chinothai";
+    }
+
+
+
+}
